@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}chen{% endblock %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/chat.css') }}">
+
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+{% endblock %}
+
+{% block body %}
+    <h4>{{ target.username }}</h4>
+    <hr>
+
+    <div id="msg-list" class="msg-list">
+        <p>正在连接socketio服务器...</p>
+    </div>
+    <div>
+        <textarea id="text" name="text" class="chat-textarea" cols="5" placeholder="编辑消息内容"></textarea>
+    </div>
+    <div class="chat-send-btn">
+        <button class="btn btn-success btn-block" onclick="send()">发送</button>
+    </div>
+    <input id="user_id" value="{{ user.id }}" hidden>
+    <input id="target_id" value="{{ target.id }}" hidden>
+
+    <script type="application/javascript" charset="utf-8">
+        var div = document.getElementById('msg-list');
+
+        var socket = io.connect('http://' + '127.0.0.1:5000');
+        socket.on('connect', function () {
+            var p = document.createElement('p');
+            p.innerHTML = '连接成功!';
+            div.appendChild(p);
+        });
+
+        socket.on('message', function (data) {
+            var p = document.createElement('p');
+            p.innerHTML = 'message';
+            div.appendChild(p);
+
+            {#cbk('ok');#}
+            {#cbk('我收到消息了');#}
+        });
+
+        socket.on('json', function (json) {
+            var p = document.createElement('p');
+            p.innerHTML = 'json:' + JSON.stringify(json);
+            div.appendChild(p);
+        });
+
+        socket.on('custom', function (custom) {
+            var p = document.createElement('p');
+            p.innerHTML = 'custom:' + custom;
+            div.appendChild(p);
+        });
+
+        // 监听数据唯一user_id来获取他人发给自己的消息
+        var user_id = document.getElementById('user_id').value.toString();
+        var target_id = document.getElementById('target_id').value.toString();
+
+        socket.on(user_id, function (data) {
+            var p = document.createElement('p');
+            p.innerHTML = data['text'];
+            div.appendChild(p);
+        });
+
+        function send() {
+            var textarea = document.getElementById('text');
+            var text = textarea.value;
+
+            var p = document.createElement('p');
+            p.className = "p-me";
+            p.innerHTML = text;
+            div.appendChild(p);
+
+            socket.emit('send_msg_single', {
+                'sender_id': user_id,
+                'target_id': target_id,
+                'text': text
+            });
+        }
+
+    </script>
+
+{% endblock %}

@@ -123,10 +123,10 @@ def search():
     like = '%%%s%%' % (keyword)
     id_like = int(keyword) if keyword != '' else 0
     users = User.query.filter(or_(User.username.like(like), User.id.like(id_like))).all()
-    result = {
+    context = {
         'users': users
     }
-    return render_template('search_users.html', **result)
+    return render_template('search_users.html', **context)
 
 
 # 用户信息
@@ -149,11 +149,11 @@ def user_info(user_id):
         if friend:
             canAdd = False
 
-        result = {
+        context = {
             'user_info': user,
             'canAdd': canAdd,
         }
-        return render_template('user_info.html', **result)
+        return render_template('user_info.html', **context)
     else:
         return u'没有该用户信息'
 
@@ -229,10 +229,10 @@ def friend_request_list():
     user_id = session.get('user_id')
     friendRs = Friend_Request.query.filter(Friend_Request.target_id == user_id,
                                            Friend_Request.state == 0).all()
-    result = {
+    context = {
         'requests': friendRs
     }
-    return render_template('friend_request_list.html', **result)
+    return render_template('friend_request_list.html', **context)
 
 
 # 同意好友请求
@@ -540,6 +540,7 @@ def delete_file(root, filetype, fullname):
 @app.route('/socket/')
 @login_required
 def socket():
+    return 'empty'
     return render_template('socket.html')
 
 # socketio.on('connect') 连接成功时回调
@@ -549,19 +550,65 @@ def socket():
 @socketio.on('connect')
 def handle_connect():
     print(u'有客户端连接上服务器')
-    send('server:欢迎你连接socket服务器')
-    # socketio.send('socektio.send') 
+    socketio.send('server:欢迎你连接socket服务器')
+    # send('socektio.send')
+    # send_message_func('字符串数据接收测试顺利')  # 发送字符串
+    # send_json_func({'result': 'json数据接收测试顺利'})  # 发送json，记得json参数要为True
 
+    # arr = [1, 2, 3, '自定义消息数据接收测试顺利']
+    # emit_custom_func('custom', arr)  # 自定义消息，要用emit
 
 @socketio.on('disconnect')
 def handle_disconnect():
     print('客户端断开连接.')
 
+# 发送数据函数
+def send_message_func(message):
+    socketio.send(message)
+    # socketio.send(message, callback=cbk)
+    # 名称空间用于区分用户，用户可以在连接地址后增加特定的路径，以达到标记不同用户的目的
+    # 这里name='chat'，那么用户需要连接了ip:port/chat/ 之后，才能接受到该消息
+    # socketio.send(message,namespace='/chat')
 
-@app.route('/test/')
-def test():
-    # socketio.send('server: test')
-    return 'ok'
+def cbk(data):
+    print('客户端收到消息后回调: ' + data)
+
+
+def send_json_func(json):
+    socketio.send(json, json=True)
+
+
+def emit_custom_func(custom, obj):
+    socketio.emit(custom, obj)
+
+# 发消息 1对1
+@app.route('/send_msg_single/<target_id>', methods=['GET', 'POST'])
+@login_required
+def send_msg_single(target_id):
+    if request.method == 'GET':
+        my_user_id = session.get('user_id')
+
+        user = User.query.filter(User.id == my_user_id).first()
+
+        target_id = int(target_id)
+        target = User.query.filter(User.id == target_id).first()
+
+        context = {
+            'target': target,
+            'user': user,
+        }
+        return render_template('chat.html', **context)
+    else:
+        pass
+
+@socketio.on('send_msg_single')
+def send_msg_sin(data):
+    print(data)
+    sender_id = data['sender_id']
+    target_id = data['target_id']
+    msg = data['text']
+
+    socketio.emit(target_id, data)
 
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=5000)

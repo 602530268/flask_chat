@@ -28,9 +28,9 @@
             <button type="submit" class="btn btn-success">申请添加为好友</button>
         </form>
     {% else %}
-{#        <a href="{{ url_for('send_msg_single',target_id=user_info.id) }}" style="color: white">#}
-{#            <button class="btn btn-primary">发消息</button>#}
-{#        </a>#}
+        <a href="{{ url_for('send_msg_single',target_id=user_info.id) }}" style="color: white">
+            <button class="btn btn-primary">发消息</button>
+        </a>
     {% endif %}
 
 {% endblock %}
