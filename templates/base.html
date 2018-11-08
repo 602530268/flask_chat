@@ -34,7 +34,7 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('contacts') }}">通讯录</a></li>
+                <li><a href="{{ url_for('address_list') }}">通讯录</a></li>
                 <li><a href="{{ url_for('friend_circle') }}">朋友圈</a></li>
                 {% if login_required_user %}
                     <li><a href="{{ url_for('user_info',user_id=login_required_user.id) }}">我</a></li>

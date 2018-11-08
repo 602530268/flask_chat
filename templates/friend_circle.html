@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}朋友圈{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/friend_circle.css') }}">
+{% endblock %}
+
+{% block body %}
+    <a href="{{ url_for('friend_circle_release') }}">发布新消息</a>
+    <hr>
+
+    {#    <img class="title-img" src="{{ url_for('static',filename='images/0.jpg') }}">#}
+    <ul>
+
+        {% for item in result %}
+            <li>
+                <div class="div-row">
+                    <div class="div-left">
+                        <img class="head-img" src="{{ item.head_img_url }}">
+                    </div>
+
+                    <div class="div-right">
+                        <a>{{ item.username }}</a>
+                        <br>
+                        <p class="content-text">{{ item.text }}</p>
+                        <div class="div-imgs">
+
+                            {% if item.images %}
+                                {% for img in item.images %}
+                                    <img class="content-img" src="{{ img }}">
+                                {% endfor %}
+                            {% endif %}
+
+                            <br><br>
+                        </div>
+                        <p class="time">刚刚</p>
+                        <p class="comment" hidden>评论</p>
+                        <p class="like"><a
+                                href="{{ url_for('like',friend_circle_id=item.circle_id) }}">{{ item.like_status }}</a>
+                        </p>
+                        <div class="div-comment">
+                            {% if item.likes %}
+                                <img class="like-img" src="{{ url_for('static',filename='images/l.png') }}">
+                                {% for like in item.likes %}
+                                    <a href="{{ url_for('user_info',user_id=like.user_id) }}">{{ like.username }}</a>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if item.comments %}
+                                {% for comment in item.comments %}
+                                    <p><a>{{ comment.username }}</a>: {{ comment.text }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <form action="/comment/" method="post">
+                            <div class="comment-input">
+                                <textarea name="text" class="comment-textarea" cols="5" placeholder="评论"></textarea>
+                            </div>
+                            <input name="circle_id" value="{{ item.circle_id }}" hidden>
+                            <div class="comment-send-btn">
+                                <button type="submit" class="btn btn-success">发送</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+                <hr>
+            </li>
+        {% endfor %}
+
+
+    </ul>
+
+{% endblock %}

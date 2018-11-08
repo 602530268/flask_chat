@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}查找用户{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    {% if users %}
+        {% for user in users %}
+            <ul>
+                <img class="img-head" src="{{ user.head_img_url }}" width="50px" height="50px">
+                <a href="{{ url_for('user_info',user_id=user.id) }}">{{ user.username }}</a>
+            </ul>
+        {% endfor %}
+    {% else %}
+        <p>没有查找到任何信息</p>
+    {% endif %}
+{% endblock %}

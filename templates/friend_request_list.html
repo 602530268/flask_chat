@@ -1,0 +1,58 @@
+{#{% extends 'base.html' %}#}
+{##}
+{#{% block title %}通讯录{% endblock %}#}
+{##}
+{#{% block head %}#}
+{#{% endblock %}#}
+{##}
+{#{% block body %}#}
+{##}
+{#    <div>#}
+{#        <a href="{{ url_for('friend_request_list') }}">好友申请列表</a>#}
+{#    </div>#}
+{#    <hr>#}
+{##}
+{#    <div>#}
+{#        {% for request in requests %}#}
+{#            <p>#}
+{#                <img class="img-head" src="{{ request.sender.head_img_url }}" width="50px" height="50px">#}
+{#                <a href="{{ url_for('user_info',user_id=request.sender.id) }}">{{ request.sender.username }}</a>#}
+{#                请求添加您为好友#}
+{#                <a href="{{ url_for('agree_friend_request',sender_id = request.sender.id) }}">#}
+{#                    <button class="btn btn-primary">同意</button>#}
+{#                </a>#}
+{#            </p>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{##}
+{#{% endblock %}#}
+
+{% extends 'base.html' %}
+
+{% block title %}通讯录{% endblock %}
+
+{% block head %}
+    {#    <link rel="stylesheet" href="{{ url_for('static',filename='css/login_register.css') }}">#}
+{% endblock %}
+
+{% block body %}
+
+    <div>
+        <a href="{{ url_for('friend_request_list') }}">好友申请列表</a>
+    </div>
+    <hr>
+
+    <div>
+        {% for request in requests %}
+            <p>
+                <img class="img-head" src="{{ request.sender.head_img_url }}" width="50px" height="50px">
+                <a href="{{ url_for('user_info',user_id=request.sender.id) }}">{{ request.sender.username }}</a>
+                请求添加您为好友
+                <a href="{{ url_for('agree_friend_request',sender_id=request.sender.id) }}">
+                    <button class="btn btn-primary">同意</button>
+                </a>
+            </p>
+        {% endfor %}
+    </div>
+
+{% endblock %}

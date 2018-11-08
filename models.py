@@ -22,3 +22,80 @@ class User(db.Model):
     head_img_url = db.Column(db.String(255), nullable=True) # 头像链接
     sex = db.Column(db.Integer) # 性别
     net_status = db.Column(db.Integer,default=0) # 网络状态
+
+# 好友请求
+class Friend_Request(db.Model):
+    __tablename__ = 'friend_request'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 发送者
+    target_id = db.Column(db.Integer, nullable=False)  # 发送对象
+
+    state = db.Column(db.Integer, default=0)  # 状态 0：等待通过 1：通过请求 2：被拒绝 3：已失效
+    sender = db.relationship('User', backref=db.backref('friend_requests'))  # 反向关联
+
+# 好友绑定
+class Friend_Bind(db.Model):
+    __tablename__ = 'friend_bind'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    # 两个用户的id
+    uid = db.Column(db.Integer, nullable=False)
+    fid = db.Column(db.Integer, nullable=False)
+
+# 朋友圈
+class Friend_Circle(db.Model):
+    __tablename__ = 'friend_circle'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 发布者
+    user = db.relationship('User', backref=db.backref('friend_circles'))
+
+    text = db.Column(db.Text)
+    address = db.Column(db.String(200))
+    weather = db.Column(db.String(20))
+
+# 文件
+class File(db.Model):
+    __tablename__ = 'file'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    type = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    link = db.Column(db.String(255), nullable=False)
+
+    uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 上传者
+    uploader = db.relationship('User', backref=db.backref('files'))
+
+    source_id = db.Column(db.Integer)  # 对应表id
+    source_type = db.Column(db.Integer)  # 对应枚举类型
+
+
+# 点赞
+class Like(db.Model):
+    __tablename__ = 'like'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    friend_circle_id = db.Column(db.Integer,db.ForeignKey('friend_circle.id'))
+    friend_circle = db.relationship('Friend_Circle',backref=db.backref('likes'))
+
+    user_id = db.Column(db.Integer,nullable=False)
+
+# 评论
+class Comment(db.Model):
+    __tablename__ = 'comment'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+    friend_circle_id = db.Column(db.Integer,db.ForeignKey('friend_circle.id'))
+    friend_circle = db.relationship('Friend_Circle',backref=db.backref('comments'))
+
+    text = db.Column(db.Text,nullable=False)
+
+    user_id = db.Column(db.Integer,nullable=False) # 发表评论者
+    target_id = db.Column(db.Integer) # 对谁的评论，默认空

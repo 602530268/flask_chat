@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}通讯录{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/address_list.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div>
+        <a href="{{ url_for('friend_request_list') }}">好友申请列表</a>
+    </div>
+    <hr>
+
+    <h4>好友列表</h4>
+    {% for friend in friends %}
+        <div class="div-row">
+            <p>
+                <img class="img-head" src="{{ friend.head_img_url }}">
+                <a href="{{ url_for('user_info',user_id=friend.id) }}">{{ friend.username }}</a>
+            </p>
+        </div>
+
+
+    {% endfor %}
+{% endblock %}

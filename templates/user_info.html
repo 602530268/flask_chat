@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}用户信息{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    <ul class="list-group">
+        <h4>
+            <small>昵称:</small>
+            {{ user_info.username }}</h4>
+        <h4>
+            <small>邮箱:</small>
+            {{ user_info.email }}</h4>
+        <h4>
+            <small>手机号码:</small>
+            {{ user_info.telephone }}</h4>
+        <h4>
+            <small>简介:</small>
+            {{ user_info.intro }}</h4>
+    </ul>
+
+    {% if canAdd == true %}
+        <form action="/friend_request/" method="post">
+            <input hidden name="target_id" value="{{ user_info.id }}">
+            <button type="submit" class="btn btn-success">申请添加为好友</button>
+        </form>
+    {% else %}
+{#        <a href="{{ url_for('send_msg_single',target_id=user_info.id) }}" style="color: white">#}
+{#            <button class="btn btn-primary">发消息</button>#}
+{#        </a>#}
+    {% endif %}
+
+{% endblock %}
