@@ -550,7 +550,7 @@ def socket():
 def handle_connect():
     print(u'有客户端连接上服务器')
     send('server:欢迎你连接socket服务器')
-    # socketio.send('socektio.send')
+    # socketio.send('socektio.send') 
 
 
 @socketio.on('disconnect')
