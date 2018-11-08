@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}登录{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/user_info_edit.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <form class="form-inline" method="post" enctype="multipart/form-data">
+
+        <div>
+            <img id="img0" src="{{ user.head_img_url }}" alt="" class="img-thumbnail">
+            <input id="img_input0" type="file" onchange="changeImg(this)" name="img_file"
+                   accept="image/jpeg,image/png,image/jpg" value="{{ user.head_img_url }}">
+            <br>
+        </div>
+        <div class="form-group">
+            <label>昵称:</label>
+            <input name="username" type="text" class="form-control" placeholder="昵称" value="{{ user.username }}">
+        </div>
+        <br>
+        <br>
+        <div class="form-group">
+            <label>邮箱:</label>
+            <input name="email" type="text" class="form-control" placeholder="邮箱" value="{{ user.email }}">
+        </div>
+        <br>
+        <br>
+        <div class="form-group">
+            <label>手机号码:</label>
+            <input name="telephone" type="text" class="form-control" placeholder="手机号码" value="{{ user.telephone }}">
+        </div>
+        <br>
+        <br>
+        <div class="form-group">
+            <label>简介:</label>
+            <input name="intro" type="text" class="form-control" placeholder="简介" value="{{ user.intro }}">
+        </div>
+        <br>
+        <br>
+
+        <button type="submit" class="btn btn-default btn-primary btn-block">保存</button>
+    </form>
+
+    <script>
+        function show(f) {
+            var rd = new FileReader();//创建文件读取对象
+            var files = f.files[0];//获取file组件中的文件
+            rd.readAsDataURL(files);//文件读取装换为base64类型
+            rd.onloadend = function (e) {
+                //加载完毕之后获取结果赋值给img
+                document.getElementById("book-pic").src = this.result;
+            }
+        }
+
+        function changeImg(f) {
+            var reader = new FileReader();
+            var files = f.files[0];
+            reader.readAsDataURL(files);
+            reader.onloadend = function (ev) {
+                document.getElementById("img0").src = this.result;
+            }
+        }
+
+    </script>
+{% endblock %}

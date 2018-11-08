@@ -10,12 +10,13 @@ import time
 from decorators import login_required
 import os
 import hashlib
+from flask_socketio import SocketIO, send, emit, join_room, leave_room, disconnect
 
 app = Flask(__name__)
 app.config.from_object(config)
 pymysql.install_as_MySQLdb()
 db.init_app(app)
-
+socketio = SocketIO(app)
 
 @app.route('/')
 def index():
@@ -131,9 +132,6 @@ def search():
 # 用户信息
 @app.route('/user_info/<user_id>/')
 def user_info(user_id):
-    print(user_id)
-    return 'ok'
-    # return ''
     user = User.query.filter(User.id == user_id).first()
     if user:
         my_user_id = session.get('user_id')
@@ -158,6 +156,40 @@ def user_info(user_id):
         return render_template('user_info.html', **result)
     else:
         return u'没有该用户信息'
+
+
+# 修改用户信息
+@app.route('/edit_user_info/', methods=['GET', 'POST'])
+@login_required
+def edit_user_info():
+    user_id = session.get('user_id')
+
+    if request.method == 'GET':
+        user = User.query.filter(User.id == user_id).first()
+        context = {'user': user}
+        return render_template('user_info_edit.html', **context)
+    else:
+        username = request.form.get('username')
+        email = request.form.get('email')
+        telephone = request.form.get('telephone')
+        intro = request.form.get('intro')
+        head_img_url = None
+
+        if len(request.files) != 0:
+            file = request.files['img_file']
+            res = upload_file('permanent', file, user_id)
+            head_img_url = res['link']
+
+        user = User.query.filter(User.id == user_id).first()
+        user.username = username
+        user.email = email
+        user.telephone = telephone
+        user.intro = intro
+        user.head_img_url = head_img_url if head_img_url is not None else user.head_img_url
+
+        db.session.commit()
+
+        return u'用户信息修改成功'
 
 
 # 发送好友请求
@@ -370,14 +402,19 @@ def friend_circle_release():
         return u'finish'
 
 
+# 点赞
 @app.route('/like/<friend_circle_id>/')
+@login_required
 def like(friend_circle_id):
     print(friend_circle_id)
 
+    print(request.args)
     # return 'ok'
     my_user_id = session.get('user_id')
 
     fc = Friend_Circle.query.filter(Friend_Circle.id == friend_circle_id).first()
+    if fc == None:
+        return u'获取朋友圈索引id失败'
 
     exist = Like.query.filter(Like.user_id == my_user_id,
                               Like.friend_circle_id == friend_circle_id).first()
@@ -499,12 +536,33 @@ def delete_file(root, filetype, fullname):
     return jsonify({'code': 1,
                     'result': u'删除文件失败'})
 
-
-@app.route('/edit_user_info/')
+# SocketIO
+@app.route('/socket/')
 @login_required
-def edit_user_info():
-    pass
+def socket():
+    return render_template('socket.html')
 
+# socketio.on('connect') 连接成功时回调
+# socketio.on('message') 接收字符串数据
+# socketio.on('json') 接收json数据
+# socketio.on('my event') 自定义消息，可以是字符串，字节，整数或者JSON
+@socketio.on('connect')
+def handle_connect():
+    print(u'有客户端连接上服务器')
+    send('server:欢迎你连接socket服务器')
+    # socketio.send('socektio.send')
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('客户端断开连接.')
+
+
+@app.route('/test/')
+def test():
+    # socketio.send('server: test')
+    return 'ok'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # app.run(host='0.0.0.0', port=5000)
+    socketio.run(app,host='0.0.0.0',port=5000)

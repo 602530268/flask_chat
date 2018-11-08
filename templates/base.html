@@ -41,6 +41,7 @@
                 {% else %}
                     <li><a href="#">我</a></li>
                 {% endif %}
+                <li><a href="{{ url_for('socket') }}">SocketIO</a></li>
             </ul>
             <form action="/search/" method="post" class="navbar-form navbar-left">
                 <div class="form-group">
